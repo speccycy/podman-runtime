@@ -72,21 +72,21 @@ test "$(rustc --version | awk '{print $2}')" = "$RUST_VERSION" || {
 echo "==> Building Podman"
 export SOURCE_DATE_EPOCH
 SOURCE_DATE_EPOCH="$(git -C "$SRC/podman" show -s --format=%ct "$PODMAN_SHA")"
-make -C "$SRC/podman" -j"$JOBS" podman rootlessport quadlet
+make -C "$SRC/podman" PREFIX=/usr -j"$JOBS" podman rootlessport quadlet
 make -C "$SRC/podman" PREFIX=/usr DESTDIR="$STAGE" \
   install.bin install.systemd install.completions
 
 echo "==> Building Netavark"
 (
   cd "$SRC/netavark"
-  cargo build --release --locked
+  CARGO_TARGET_DIR=targets cargo build --release --locked
   install -D -m0755 targets/release/netavark "$STAGE/usr/libexec/podman/netavark"
 )
 
 echo "==> Building Aardvark DNS"
 (
   cd "$SRC/aardvark-dns"
-  cargo build --release --locked
+  CARGO_TARGET_DIR=targets cargo build --release --locked
   install -D -m0755 targets/release/aardvark-dns "$STAGE/usr/libexec/podman/aardvark-dns"
 )
 
