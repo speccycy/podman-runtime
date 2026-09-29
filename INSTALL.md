@@ -5,14 +5,13 @@ Do not build Podman on the production server.
 
 ## Supported release
 
-- Release: `v6.1.2-2`
+- Release: `v6.1.2-3`
 - Debian: 13 (trixie)
 - Architecture: amd64
-- Package: `podman-runtime_6.1.2-2_amd64.deb`
+- Package: `podman-runtime_6.1.2-3_amd64.deb`
 
 The installer pins both the release tag and the exact SHA-256 digests of the
-release package and `SHA256SUMS`. Package revision `6.1.2-2` also removes the
-unnecessary Debian containers-common dependency from the first release.
+release package and `SHA256SUMS`. Package revision `6.1.2-3` removes the unnecessary Debian containers-common/network helper packages from the first release and supports a clean in-place upgrade from `6.1.2`.
 
 ## Production installation
 
@@ -35,8 +34,8 @@ remains daemonless unless those units are enabled separately.
 ## Manual package install
 
 For troubleshooting only, download the three assets from release
-`v6.1.2-2`, verify `SHA256SUMS`, then install:
+`v6.1.2-3`, verify `SHA256SUMS`, then install:
 
 ```bash
-sudo apt-get install ./podman-runtime_6.1.2-2_amd64.deb
+sudo apt-get install ./podman-runtime_6.1.2-3_amd64.deb
 ```
