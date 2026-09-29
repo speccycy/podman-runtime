@@ -63,3 +63,52 @@ jobs:
             dist/SHA256SUMS
           if-no-files-found: error
           retention-days: 30
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout release metadata
+        uses: actions/checkout@v4
+
+      - name: Download runtime bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: podman-runtime-${{ github.ref_name }}-${{ github.run_number }}
+          path: dist
+
+      - name: Verify release payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum -c SHA256SUMS
+          test "$(find . -maxdepth 1 -name '*.deb' | wc -l)" -eq 1
+          test "$(find . -maxdepth 1 -name '*.tar.gz' | wc -l)" -eq 1
+
+      - name: Publish GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          source versions.env
+          cat > release-notes.md <<EOF
+          Debian 13 amd64 runtime bundle built from exact upstream commits.
+
+          - Podman ${PODMAN_VERSION}: ${PODMAN_SHA}
+          - Netavark ${NETAVARK_VERSION}: ${NETAVARK_SHA}
+          - Aardvark DNS ${AARDVARK_VERSION}: ${AARDVARK_SHA}
+
+          Verify downloaded assets with SHA256SUMS before installation.
+          EOF
+          gh release create "$GITHUB_REF_NAME" \
+            dist/*.deb dist/*.tar.gz dist/SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "Podman runtime $GITHUB_REF_NAME" \
+            --notes-file release-notes.md
