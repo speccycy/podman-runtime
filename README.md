@@ -29,6 +29,11 @@ GitHub Actions produces:
 The bundle contains Podman, rootlessport, Quadlet, Netavark, and Aardvark DNS.
 System runtime dependencies such as conmon and crun remain Debian-managed.
 
+## Installation
+
+Production installs must use a versioned GitHub Release, not a source build on
+the production server. See [INSTALL.md](INSTALL.md).
+
 ## Local build
 
 Run on Debian 13 with the dependencies mirrored in
