@@ -97,10 +97,14 @@ jobs:
           test -f /usr/share/containers/policy.json
           test -f /usr/share/containers/registries.conf
           test -f /usr/share/containers/registries.d/default.yaml
-          ! dpkg-query -W netavark >/dev/null 2>&1
-          ! dpkg-query -W aardvark-dns >/dev/null 2>&1
-          ! dpkg-query -W golang-github-containers-common >/dev/null 2>&1
-          ! dpkg-query -W golang-github-containers-image >/dev/null 2>&1
+          package_not_installed() {
+            status="$(dpkg-query -W -f='\${Status}' "$1" 2>/dev/null || true)"
+            [ "$status" != "install ok installed" ]
+          }
+          package_not_installed netavark
+          package_not_installed aardvark-dns
+          package_not_installed golang-github-containers-common
+          package_not_installed golang-github-containers-image
 
   upgrade-smoke:
     needs: build
