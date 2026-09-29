@@ -3,14 +3,15 @@ set -euo pipefail
 umask 022
 
 REPO="speccycy/podman-runtime"
-RELEASE_TAG="v6.1.2-1"
+RELEASE_TAG="v6.1.2-2"
 PODMAN_VERSION="6.1.2"
+PACKAGE_VERSION="6.1.2-2"
 ARCH="amd64"
-DEB="podman-runtime_6.1.2_amd64.deb"
+DEB="podman-runtime_6.1.2-2_amd64.deb"
 SHA256SUMS="SHA256SUMS"
 
-EXPECTED_DEB_SHA256="bc5dacab001ef19d5a390cedb01f87e720d02a64436f211ca59e561e0cff49cd"
-EXPECTED_SUMS_SHA256="bbecdd07a2ee8b92307338cdff74726068090e93b95c0dbbb1c8a910914280b2"
+EXPECTED_DEB_SHA256="79e863de56e40aa2ba1038d6c8e756ba3c54ab65b02afb7657b4459cc75b4504"
+EXPECTED_SUMS_SHA256="6b1e8988069bf38f970390bd59e6bc35b8b101080b48f4a2e4287f440f15e667"
 
 BASE_URL="https://github.com/$REPO/releases/download/$RELEASE_TAG"
 
@@ -73,11 +74,13 @@ verify_no_legacy_source_install() {
       grep -q '^install ok installed$'; then
     local installed_version
     installed_version="$(dpkg-query -W -f='${Version}' podman-runtime)"
-    [ "$installed_version" = "$PODMAN_VERSION" ] ||
-      fail "podman-runtime is already installed at version $installed_version."
+    if [ "$installed_version" = "$PACKAGE_VERSION" ]; then
+      echo "podman-runtime $installed_version is already installed."
+      return 10
+    fi
 
-    echo "podman-runtime $installed_version is already installed."
-    return 10
+    echo "==> Existing podman-runtime $installed_version will be upgraded to $PACKAGE_VERSION"
+    return 0
   fi
 
   if command -v podman >/dev/null 2>&1; then
@@ -120,8 +123,8 @@ verify_runtime() {
 
   local package_version podman_path podman_version cgroup_version network_backend
   package_version="$(dpkg-query -W -f='${Version}' podman-runtime)"
-  [ "$package_version" = "$PODMAN_VERSION" ] ||
-    fail "Installed package version is $package_version; expected $PODMAN_VERSION."
+  [ "$package_version" = "$PACKAGE_VERSION" ] ||
+    fail "Installed package version is $package_version; expected $PACKAGE_VERSION."
 
   podman_path="$(command -v podman || true)"
   [ "$podman_path" = "/usr/bin/podman" ] ||
@@ -209,7 +212,7 @@ main() {
   echo
   echo "Podman runtime installed successfully."
   echo "Release:  $RELEASE_TAG"
-  echo "Package:  podman-runtime $PODMAN_VERSION"
+  echo "Package:  podman-runtime $PACKAGE_VERSION"
   echo "Podman:   $(podman --version)"
   echo "Path:     $(command -v podman)"
   echo "Netavark: $(/usr/libexec/podman/netavark --version)"
