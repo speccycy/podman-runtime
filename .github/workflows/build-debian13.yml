@@ -147,10 +147,14 @@ jobs:
           podman --version | grep -F "podman version 6.1.2"
           /usr/libexec/podman/netavark --version | grep -F "2.1.0"
           /usr/libexec/podman/aardvark-dns --version | grep -F "2.1.0"
-          ! dpkg-query -W golang-github-containers-common >/dev/null 2>&1
-          ! dpkg-query -W golang-github-containers-image >/dev/null 2>&1
-          ! dpkg-query -W netavark >/dev/null 2>&1
-          ! dpkg-query -W aardvark-dns >/dev/null 2>&1
+          package_not_installed() {
+            status="$(dpkg-query -W -f='\${Status}' "$1" 2>/dev/null || true)"
+            [ "$status" != "install ok installed" ]
+          }
+          package_not_installed golang-github-containers-common
+          package_not_installed golang-github-containers-image
+          package_not_installed netavark
+          package_not_installed aardvark-dns
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
