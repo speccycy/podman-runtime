@@ -28,8 +28,8 @@ Architecture: $ARCH
 Maintainer: speccycy
 Depends: conmon, crun | runc, init-system-helpers, libc6, libgpgme11t64, libseccomp2, libsqlite3-0, libsubid5
 Recommends: uidmap, passt, slirp4netns, fuse-overlayfs, iptables, nftables
-Conflicts: podman
-Replaces: podman
+Conflicts: podman, podman-remote, golang-github-containers-common, golang-github-containers-image, netavark, aardvark-dns
+Replaces: podman, podman-remote, golang-github-containers-common, golang-github-containers-image, netavark, aardvark-dns
 Provides: podman
 Description: Pinned upstream Podman runtime bundle for Debian 13
  Podman $PODMAN_VERSION with Netavark $NETAVARK_VERSION and
