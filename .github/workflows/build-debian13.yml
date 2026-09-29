@@ -64,9 +64,47 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  package-smoke:
+    needs: build
+    runs-on: ubuntu-24.04
+    container:
+      image: debian:13
+
+    steps:
+      - name: Install smoke-test prerequisites
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends ca-certificates
+
+      - name: Download runtime bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: podman-runtime-${{ github.ref_name }}-${{ github.run_number }}
+          path: dist
+
+      - name: Install package on clean Debian 13
+        shell: bash
+        run: |
+          set -euo pipefail
+          apt-get install -y ./dist/*.deb
+          podman --version | grep -F "podman version 6.1.2"
+          /usr/libexec/podman/netavark --version | grep -F "2.1.0"
+          /usr/libexec/podman/aardvark-dns --version | grep -F "2.1.0"
+          ldd /usr/bin/podman | tee /tmp/podman-ldd.txt
+          ! grep -F "not found" /tmp/podman-ldd.txt
+          test -f /usr/share/containers/containers.conf
+          test -f /usr/share/containers/seccomp.json
+          test -f /usr/share/containers/policy.json
+          test -f /usr/share/containers/registries.conf
+          test -f /usr/share/containers/registries.d/default.yaml
+          ! dpkg-query -W netavark >/dev/null 2>&1
+          ! dpkg-query -W aardvark-dns >/dev/null 2>&1
+          ! dpkg-query -W golang-github-containers-common >/dev/null 2>&1
+          ! dpkg-query -W golang-github-containers-image >/dev/null 2>&1
+
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [build, package-smoke]
     runs-on: ubuntu-24.04
     permissions:
       contents: write

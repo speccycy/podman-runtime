@@ -196,12 +196,13 @@ main() {
     exit "$rc"
   fi
 
-  local tmp
-  tmp="$(mktemp -d)"
-  trap 'rm -rf "$tmp"' EXIT
+  TMP_DIR="$(mktemp -d)"
+  trap 'if [ -n "${TMP_DIR:-}" ]; then rm -rf "$TMP_DIR"; fi' EXIT
 
-  download_and_verify "$tmp"
-  install_package "$tmp/$DEB"
+  download_and_verify "$TMP_DIR"
+  chmod 0755 "$TMP_DIR"
+  chmod 0644 "$TMP_DIR/$DEB" "$TMP_DIR/$SHA256SUMS"
+  install_package "$TMP_DIR/$DEB"
   verify_runtime
   verify_protected_services
 

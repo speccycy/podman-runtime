@@ -55,6 +55,8 @@ echo "==> Fetching exact upstream sources"
 clone_exact "$PODMAN_REPO" "$PODMAN_TAG" "$PODMAN_SHA" "$SRC/podman"
 clone_exact "$NETAVARK_REPO" "$NETAVARK_TAG" "$NETAVARK_SHA" "$SRC/netavark"
 clone_exact "$AARDVARK_REPO" "$AARDVARK_TAG" "$AARDVARK_SHA" "$SRC/aardvark-dns"
+clone_exact "$CONTAINER_LIBS_REPO" "$COMMON_TAG" "$COMMON_SHA" "$SRC/container-libs-common"
+clone_exact "$CONTAINER_LIBS_REPO" "$IMAGE_TAG" "$IMAGE_SHA" "$SRC/container-libs-image"
 
 echo "==> Verifying toolchains"
 go version
@@ -90,6 +92,13 @@ echo "==> Building Aardvark DNS"
   install -D -m0755 targets/release/aardvark-dns "$STAGE/usr/libexec/podman/aardvark-dns"
 )
 
+echo "==> Installing pinned vendor configuration"
+install -D -m0644   "$SRC/container-libs-common/common/pkg/config/containers.conf"   "$STAGE/usr/share/containers/containers.conf"
+install -D -m0644   "$SRC/container-libs-common/common/pkg/seccomp/seccomp.json"   "$STAGE/usr/share/containers/seccomp.json"
+install -D -m0644   "$SRC/container-libs-image/image/default-policy.json"   "$STAGE/usr/share/containers/policy.json"
+install -D -m0644   "$SRC/container-libs-image/image/registries.conf"   "$STAGE/usr/share/containers/registries.conf"
+install -D -m0644   "$SRC/container-libs-image/image/default.yaml"   "$STAGE/usr/share/containers/registries.d/default.yaml"
+
 cat > "$STAGE/BUILD-METADATA" <<EOF
 podman_version=$PODMAN_VERSION
 podman_sha=$PODMAN_SHA
@@ -97,6 +106,11 @@ netavark_version=$NETAVARK_VERSION
 netavark_sha=$NETAVARK_SHA
 aardvark_version=$AARDVARK_VERSION
 aardvark_sha=$AARDVARK_SHA
+common_version=$COMMON_VERSION
+common_sha=$COMMON_SHA
+image_version=$IMAGE_VERSION
+image_sha=$IMAGE_SHA
+package_revision=$PACKAGE_REVISION
 go_version=$GO_VERSION
 rust_version=$RUST_VERSION
 source_date_epoch=$SOURCE_DATE_EPOCH

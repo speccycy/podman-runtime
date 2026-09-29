@@ -8,7 +8,7 @@ STAGE="$ROOT/work/stage"
 DIST="$ROOT/dist"
 ARCH="$(dpkg --print-architecture)"
 PKGROOT="$ROOT/work/pkg"
-VERSION="$PODMAN_VERSION"
+VERSION="$PODMAN_VERSION-$PACKAGE_REVISION"
 
 test -x "$STAGE/usr/bin/podman" || {
   echo "build output missing; run scripts/build.sh first" >&2
@@ -26,7 +26,7 @@ Section: admin
 Priority: optional
 Architecture: $ARCH
 Maintainer: speccycy
-Depends: conmon, crun | runc, golang-github-containers-common, init-system-helpers, libc6, libgpgme11t64, libseccomp2, libsqlite3-0, libsubid5
+Depends: conmon, crun | runc, init-system-helpers, libc6, libgpgme11t64, libseccomp2, libsqlite3-0, libsubid5
 Recommends: uidmap, passt, slirp4netns, fuse-overlayfs, iptables, nftables
 Conflicts: podman
 Replaces: podman
