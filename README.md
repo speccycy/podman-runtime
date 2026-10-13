@@ -8,7 +8,7 @@ commits, builds them on Debian 13, packages the runtime, and publishes CI artifa
 
 ## Pinned upstream
 
-- Podman 6.1.3 — `85b994955e0b4e30fbce9c8351cab85676140ede`
+- Podman 6.1.4 — `464c15fec06f0074c916f9eff87c4806869c2833`
 - Netavark 2.1.0 — `8e91ad1d947ed325327b638f0cb906bea1f7d0ab`
 - Aardvark DNS 2.1.0 — `cd7417681229219059939bdd9f0b3bd9ac9abb08`
 - Go 1.26.0
@@ -18,11 +18,15 @@ commits, builds them on Debian 13, packages the runtime, and publishes CI artifa
 Podman and are resolved from Podman's pinned `go.mod` / `go.sum`; they are
 not separately installed runtime binaries.
 
-Podman 6.1.3 addresses CVE-2026-94603. Running checkpoint images via
-`podman run` is no longer supported upstream for security reasons.
+Podman 6.1.4 includes a WSL 3 fix and updated Buildah 1.45.2 / Storage 1.64.2
+Go dependencies. Upstream also updated gvproxy to 0.9.0 to address
+CVE-2026-107935; this Debian server bundle does not package gvproxy.
+Podman 6.1.3 previously addressed CVE-2026-94603 and removed checkpoint
+image support from `podman run`.
 
-The production installer remains pinned to the previously verified release
-until the 6.1.3-1 assets and checksums are published and verified.
+The production installer is pinned to the last verified release (6.1.3-1).
+After 6.1.4-1 is built, tested, and published, update the installer to its
+verified package and SHA256SUMS digests in a separate change.
 
 ## Outputs
 
