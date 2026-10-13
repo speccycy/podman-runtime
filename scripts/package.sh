@@ -8,8 +8,10 @@ STAGE="$ROOT/work/stage"
 DIST="$ROOT/dist"
 ARCH="$(dpkg --print-architecture)"
 PKGROOT="$ROOT/work/pkg"
-VERSION="$PODMAN_VERSION-$PACKAGE_REVISION"
+# /etc/os-release defines VERSION (e.g. "13 (trixie)"), so use a distinct
+# package-version variable to prevent corrupting the Debian control file.
 . /etc/os-release
+PKG_VERSION="$PODMAN_VERSION-$PACKAGE_REVISION"
 case "$ID:$VERSION_ID" in
   debian:13) PLATFORM=debian13; SUBID_PKG=libsubid5 ;;
   ubuntu:24.04) PLATFORM=ubuntu24.04; SUBID_PKG=libsubid4 ;;
@@ -28,7 +30,7 @@ cp -a "$STAGE/." "$PKGROOT/"
 
 cat > "$PKGROOT/DEBIAN/control" <<EOF
 Package: podman-runtime
-Version: $VERSION
+Version: $PKG_VERSION
 Section: admin
 Priority: optional
 Architecture: $ARCH
@@ -44,12 +46,12 @@ Description: Pinned upstream Podman runtime bundle for $PLATFORM
 EOF
 
 dpkg-deb --root-owner-group --build "$PKGROOT" \
-  "$DIST/podman-runtime_${VERSION}_${PLATFORM}_${ARCH}.deb"
+  "$DIST/podman-runtime_${PKG_VERSION}_${PLATFORM}_${ARCH}.deb"
 
 tar --sort=name \
   --mtime="@$(stat -c %Y "$STAGE/BUILD-METADATA")" \
   --owner=0 --group=0 --numeric-owner \
-  -C "$STAGE" -czf "$DIST/podman-runtime_${VERSION}_${PLATFORM}_${ARCH}.tar.gz" .
+  -C "$STAGE" -czf "$DIST/podman-runtime_${PKG_VERSION}_${PLATFORM}_${ARCH}.tar.gz" .
 
 (
   cd "$DIST"
