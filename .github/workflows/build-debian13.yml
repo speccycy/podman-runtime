@@ -2,6 +2,7 @@ name: Build Debian 13 runtime
 
 on:
   workflow_dispatch:
+  pull_request:
   push:
     branches: [main]
     tags: ["v*"]
@@ -56,7 +57,7 @@ jobs:
       - name: Upload runtime bundle
         uses: actions/upload-artifact@v4
         with:
-          name: podman-runtime-${{ github.ref_name }}-${{ github.run_number }}
+          name: podman-runtime-${{ github.run_id }}
           path: |
             dist/*.deb
             dist/*.tar.gz
@@ -79,7 +80,7 @@ jobs:
       - name: Download runtime bundle
         uses: actions/download-artifact@v4
         with:
-          name: podman-runtime-${{ github.ref_name }}-${{ github.run_number }}
+          name: podman-runtime-${{ github.run_id }}
           path: dist
 
       - name: Install package on clean Debian 13
@@ -87,7 +88,8 @@ jobs:
         run: |
           set -euo pipefail
           apt-get install -y ./dist/*.deb
-          podman --version | grep -F "podman version 6.1.3"
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-1"
+          podman --version | grep -F "podman version 6.1.4"
           /usr/libexec/podman/netavark --version | grep -F "2.1.0"
           /usr/libexec/podman/aardvark-dns --version | grep -F "2.1.0"
           ldd /usr/bin/podman | tee /tmp/podman-ldd.txt
@@ -98,7 +100,7 @@ jobs:
           test -f /usr/share/containers/registries.conf
           test -f /usr/share/containers/registries.d/default.yaml
           package_not_installed() {
-            status="$(dpkg-query -W -f='\${Status}' "$1" 2>/dev/null || true)"
+            status="$(dpkg-query -W -f='${Status}' "$1" 2>/dev/null || true)"
             [ "$status" != "install ok installed" ]
           }
           package_not_installed netavark
@@ -135,7 +137,7 @@ jobs:
       - name: Download current runtime bundle
         uses: actions/download-artifact@v4
         with:
-          name: podman-runtime-${{ github.ref_name }}-${{ github.run_number }}
+          name: podman-runtime-${{ github.run_id }}
           path: dist
 
       - name: Upgrade first release to current package
@@ -143,12 +145,12 @@ jobs:
         run: |
           set -euo pipefail
           apt-get install -y ./dist/*.deb
-          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.3-1"
-          podman --version | grep -F "podman version 6.1.3"
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-1"
+          podman --version | grep -F "podman version 6.1.4"
           /usr/libexec/podman/netavark --version | grep -F "2.1.0"
           /usr/libexec/podman/aardvark-dns --version | grep -F "2.1.0"
           package_not_installed() {
-            status="$(dpkg-query -W -f='\${Status}' "$1" 2>/dev/null || true)"
+            status="$(dpkg-query -W -f='${Status}' "$1" 2>/dev/null || true)"
             [ "$status" != "install ok installed" ]
           }
           package_not_installed golang-github-containers-common
@@ -168,33 +170,33 @@ jobs:
           apt-get update
           apt-get install -y --no-install-recommends ca-certificates curl
 
-      - name: Install first runtime release
+      - name: Install last verified runtime release
         shell: bash
         run: |
           set -euo pipefail
           curl --fail --location --proto '=https' --tlsv1.2 \
-            https://github.com/speccycy/podman-runtime/releases/download/v6.1.2-3/podman-runtime_6.1.2-3_amd64.deb \
+            https://github.com/speccycy/podman-runtime/releases/download/v6.1.3-1/podman-runtime_6.1.3-1_amd64.deb \
             --output /tmp/podman-runtime-v1.deb
-          echo "c20950b4a572789b0176fbea3ac4cea6ba38b8e3ab9541ede6ec332aae53be5f  /tmp/podman-runtime-v1.deb" | sha256sum -c -
+          echo "b0b014931caced409fd1598fe65403e2b1fa27702191e96882ee0b9c5e1623c2  /tmp/podman-runtime-v1.deb" | sha256sum -c -
           apt-get install -y /tmp/podman-runtime-v1.deb
 
       - name: Download current runtime bundle
         uses: actions/download-artifact@v4
         with:
-          name: podman-runtime-${{ github.ref_name }}-${{ github.run_number }}
+          name: podman-runtime-${{ github.run_id }}
           path: dist
 
-      - name: Upgrade first release to current package
+      - name: Upgrade last verified release to current package
         shell: bash
         run: |
           set -euo pipefail
           apt-get install -y ./dist/*.deb
-          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.3-1"
-          podman --version | grep -F "podman version 6.1.3"
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-1"
+          podman --version | grep -F "podman version 6.1.4"
           /usr/libexec/podman/netavark --version | grep -F "2.1.0"
           /usr/libexec/podman/aardvark-dns --version | grep -F "2.1.0"
           package_not_installed() {
-            status="$(dpkg-query -W -f='\${Status}' "$1" 2>/dev/null || true)"
+            status="$(dpkg-query -W -f='${Status}' "$1" 2>/dev/null || true)"
             [ "$status" != "install ok installed" ]
           }
           package_not_installed golang-github-containers-common
@@ -203,7 +205,7 @@ jobs:
           package_not_installed aardvark-dns
 
   release:
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     needs: [build, package-smoke, upgrade-smoke, upgrade-latest-smoke]
     runs-on: ubuntu-24.04
     permissions:
@@ -216,7 +218,7 @@ jobs:
       - name: Download runtime bundle
         uses: actions/download-artifact@v4
         with:
-          name: podman-runtime-${{ github.ref_name }}-${{ github.run_number }}
+          name: podman-runtime-${{ github.run_id }}
           path: dist
 
       - name: Verify release payload
@@ -250,7 +252,8 @@ jobs:
           - Podman $PODMAN_VERSION: $PODMAN_SHA
           - Netavark $NETAVARK_VERSION: $NETAVARK_SHA
           - Aardvark DNS $AARDVARK_VERSION: $AARDVARK_SHA
-          Podman 6.1.3 addresses CVE-2026-94603.
+          Podman 6.1.4 includes Buildah 1.45.2 and Storage 1.64.2.
+          Upstream gvproxy 0.9.0 addresses CVE-2026-107935 (gvproxy is not bundled).
           Verify downloaded assets with SHA256SUMS.
           EOF
           gh release create "$tag" dist/*.deb dist/*.tar.gz dist/SHA256SUMS \
