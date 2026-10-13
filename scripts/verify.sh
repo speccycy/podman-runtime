@@ -47,23 +47,11 @@ case "$depends" in
 esac
 dpkg-deb --contents "$deb" | grep -E '/usr/bin/podman$'
 dpkg-deb --contents "$deb" | grep -E '/usr/libexec/podman/netavark$'
-dpkg-deb --contents "$deb" | grep -E '/usr/libexec/podman/aardvark-dns
-echo "==> Verification passed"
-
-dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/containers.conf
-echo "==> Verification passed"
-
-dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/seccomp.json
-echo "==> Verification passed"
-
-dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/policy.json
-echo "==> Verification passed"
-
-dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/registries.conf
-echo "==> Verification passed"
-
-dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/registries.d/default.yaml
-echo "==> Verification passed"
-
+dpkg-deb --contents "$deb" | grep -E '/usr/libexec/podman/aardvark-dns$'
+dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/containers.conf$'
+dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/seccomp.json$'
+dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/policy.json$'
+dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/registries.conf$'
+dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/registries.d/default.yaml$'
 
 echo "==> Verification passed"

@@ -8,7 +8,7 @@ commits, builds them on Debian 13, packages the runtime, and publishes CI artifa
 
 ## Pinned upstream
 
-- Podman 6.1.2 — `04f3aa430e6df81bea059978bc5bafbc846ba3e7`
+- Podman 6.1.3 — `85b994955e0b4e30fbce9c8351cab85676140ede`
 - Netavark 2.1.0 — `8e91ad1d947ed325327b638f0cb906bea1f7d0ab`
 - Aardvark DNS 2.1.0 — `cd7417681229219059939bdd9f0b3bd9ac9abb08`
 - Go 1.26.0
@@ -17,6 +17,12 @@ commits, builds them on Debian 13, packages the runtime, and publishes CI artifa
 `containers/common` and `containers/image` are Go module dependencies of
 Podman and are resolved from Podman's pinned `go.mod` / `go.sum`; they are
 not separately installed runtime binaries.
+
+Podman 6.1.3 addresses CVE-2026-94603. Running checkpoint images via
+`podman run` is no longer supported upstream for security reasons.
+
+The production installer remains pinned to the previously verified release
+until the 6.1.3-1 assets and checksums are published and verified.
 
 ## Outputs
 
