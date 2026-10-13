@@ -6,6 +6,12 @@ source "$ROOT/versions.env"
 
 STAGE="$ROOT/work/stage"
 DIST="$ROOT/dist"
+. /etc/os-release
+case "$ID:$VERSION_ID" in
+  debian:13) PLATFORM=debian13 ;;
+  ubuntu:24.04) PLATFORM=ubuntu24.04 ;;
+  *) echo "Unsupported verification host: $ID $VERSION_ID" >&2; exit 1 ;;
+esac
 
 test -x "$STAGE/usr/bin/podman"
 test -x "$STAGE/usr/libexec/podman/rootlessport"
@@ -31,13 +37,14 @@ grep -F "package_revision=$PACKAGE_REVISION" "$STAGE/BUILD-METADATA"
 
 (
   cd "$DIST"
-  sha256sum -c SHA256SUMS
+  sha256sum -c "SHA256SUMS.$PLATFORM"
 )
 
-deb="$(find "$DIST" -maxdepth 1 -name 'podman-runtime_*.deb' -print -quit)"
-test -n "$deb"
+deb="$DIST/podman-runtime_${PODMAN_VERSION}-${PACKAGE_REVISION}_${PLATFORM}_$(dpkg --print-architecture).deb"
+test -f "$deb"
 dpkg-deb --info "$deb"
 test "$(dpkg-deb -f "$deb" Version)" = "$PODMAN_VERSION-$PACKAGE_REVISION"
+test "$(dpkg-deb -f "$deb" Architecture)" = "amd64"
 depends="$(dpkg-deb -f "$deb" Depends)"
 case "$depends" in
   *golang-github-containers-common*|*netavark*|*aardvark-dns*)

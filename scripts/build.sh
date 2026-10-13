@@ -111,6 +111,7 @@ common_sha=$COMMON_SHA
 image_version=$IMAGE_VERSION
 image_sha=$IMAGE_SHA
 package_revision=$PACKAGE_REVISION
+build_platform=$( . /etc/os-release; echo "$ID:$VERSION_ID" )
 go_version=$GO_VERSION
 rust_version=$RUST_VERSION
 source_date_epoch=$SOURCE_DATE_EPOCH
