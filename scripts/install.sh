@@ -115,6 +115,10 @@ verify_runtime() {
     fail "Netavark version mismatch"
   /usr/libexec/podman/aardvark-dns --version | grep -F 2.1.0 >/dev/null ||
     fail "Aardvark DNS version mismatch"
+  /usr/libexec/podman/crun --version | grep -F "1.30.1" >/dev/null ||
+    fail "Bundled crun version mismatch"
+  [ "$(podman info --format '{{.Host.OCIRuntime.Path}}')" = "/usr/libexec/podman/crun" ] ||
+    fail "Podman is not using the bundled crun; inspect /etc/containers overrides"
   [ "$(podman info --format '{{.Host.CgroupsVersion}}')" = "v2" ] ||
     fail "Podman requires cgroup v2"
   [ "$(podman info --format '{{.Host.NetworkBackend}}')" = "netavark" ] ||

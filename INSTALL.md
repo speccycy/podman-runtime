@@ -17,9 +17,11 @@ curl -fsSL https://raw.githubusercontent.com/speccycy/podman-runtime/main/script
 sudo bash podman-install.sh
 ```
 
-The script prints the OS and selected file; checks that the versioned release exists, that the package hash matches GitHub's independent asset digest and `SHA256SUMS`; displays APT's simulated package changes; refuses unexpected package removals and active Podman workloads; installs and verifies Podman 6.1.4, Netavark 2.1.0 and Aardvark DNS 2.1.0; and confirms protected Docker/containerd/cloudflared/AMP services were not interrupted.
+The script prints the OS and selected file; checks that the versioned release exists, that the package hash matches GitHub's independent asset digest and `SHA256SUMS`; displays APT's simulated package changes; refuses unexpected package removals and active Podman workloads; installs and verifies Podman 6.1.4, Netavark 2.1.0, Aardvark DNS 2.1.0 and private crun 1.30.1; and confirms protected Docker/containerd/cloudflared/AMP services were not interrupted.
 
 Preview only: `sudo bash podman-install.sh --dry-run`.
+
+Podman uses `/usr/libexec/podman/crun` bundled with the runtime; `/usr/bin/crun` from the OS is unchanged. Custom `/etc/containers` overrides can change runtime selection and are detected by the installer.
 
 The runtime is daemonless by default. The script does **not** automatically enable `podman.socket` or `podman.service`.
 

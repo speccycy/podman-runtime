@@ -2,7 +2,7 @@
 
 **ระบบที่รองรับ:** Debian 13 และ Ubuntu 24.04 LTS แบบ 64-bit (amd64/x86_64)
 
-**เวอร์ชันเป้าหมาย:** Podman 6.1.4 / แพ็กเกจ 6.1.4-2 / Netavark และ Aardvark DNS 2.1.0
+**เวอร์ชันเป้าหมาย:** Podman 6.1.4 / แพ็กเกจ 6.1.4-2 / Netavark และ Aardvark DNS 2.1.0 / crun 1.30.1 (อยู่ในแพ็กเกจ)
 
 > **สำคัญ:** แพ็กเกจ 6.1.4-2 สำหรับทั้งสองระบบจะพร้อมใช้เมื่อ GitHub Actions ผ่านและเผยแพร่ Release แล้วเท่านั้น ถ้า Release ยังไม่ออก ตัวติดตั้งจะหยุด ไม่ดาวน์โหลดแพ็กเกจเก่าหรือฝืนติดตั้งข้ามระบบ
 
@@ -48,7 +48,7 @@ sudo bash podman-install.sh
 2. ดาวน์โหลดไฟล์ .deb จาก GitHub Release ที่ระบุเวอร์ชันไว้
 3. ตรวจ SHA256 ทั้งแพ็กเกจและไฟล์รายการ SHA256SUMS
 4. ตรวจคำสั่ง APT แบบจำลองก่อนลงจริง ถ้า APT จะถอนแพ็กเกจอื่นที่ไม่เกี่ยวข้องจะหยุด
-5. ติดตั้งด้วย APT และตรวจเวอร์ชัน, cgroup v2, Netavark
+5. ติดตั้งด้วย APT และตรวจเวอร์ชัน, cgroup v2, Netavark รวมถึง crun 1.30.1 ที่อยู่ในแพ็กเกจ โดยไม่เปลี่ยน crun ของระบบ
 6. ตรวจว่า Docker, containerd, cloudflared และ AMP ที่เคยทำงานยังทำงานอยู่
 
 **ไม่จำเป็นต้อง Build Podman หรือเลือก .deb เอง** และไม่จำเป็นต้องเปิด Podman service/socket สำหรับการใช้งานทั่วไป
@@ -65,6 +65,8 @@ sudo bash podman-install.sh --dry-run
 podman --version
 dpkg-query -W podman-runtime
 podman info --format 'Cgroup={{.Host.CgroupsVersion}} Network={{.Host.NetworkBackend}}'
+/usr/libexec/podman/crun --version
+sudo podman info --format '{{.Host.OCIRuntime.Path}}'
 sudo podman run --rm docker.io/library/alpine:3.21 echo PODMAN_OK
 ```
 
@@ -74,6 +76,8 @@ sudo podman run --rm docker.io/library/alpine:3.21 echo PODMAN_OK
 podman version 6.1.4
 podman-runtime 6.1.4-2
 Cgroup=v2 Network=netavark
+crun version 1.30.1
+/usr/libexec/podman/crun
 PODMAN_OK
 ```
 

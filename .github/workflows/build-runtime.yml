@@ -32,7 +32,8 @@ jobs:
             ca-certificates curl git build-essential make pkg-config \
             libassuan-dev libbtrfs-dev libgpgme-dev libseccomp-dev \
             libsystemd-dev libdevmapper-dev libapparmor-dev libsqlite3-dev \
-            libsubid-dev protobuf-compiler dpkg-dev file xz-utils zstd
+            libsubid-dev protobuf-compiler dpkg-dev file xz-utils zstd \
+            autoconf automake libtool libcap-dev libjson-c-dev libprotobuf-c-dev python3
 
       - name: Checkout pinned sources
         uses: actions/checkout@v4
@@ -120,7 +121,10 @@ jobs:
           podman --version | grep -F "podman version 6.1.4"
           /usr/libexec/podman/netavark --version | grep -F "2.1.0"
           /usr/libexec/podman/aardvark-dns --version | grep -F "2.1.0"
+          /usr/libexec/podman/crun --version | grep -F "1.30.1"
           ! ldd /usr/bin/podman | grep -F "not found"
+          ! ldd /usr/libexec/podman/crun | grep -F "not found"
+          test -f /usr/share/containers/containers.conf.d/99-infh-pinned-crun.conf
           test -f /usr/share/containers/containers.conf
           test -f /usr/share/containers/seccomp.json
           test -f /usr/share/containers/policy.json
@@ -150,6 +154,8 @@ jobs:
           sudo apt-get install -y ./dist/podman-runtime_*_ubuntu24.04_amd64.deb
           podman --version | grep -F "podman version 6.1.4"
           sudo podman info --format '{{.Host.CgroupsVersion}} {{.Host.NetworkBackend}}' | grep -F 'v2 netavark'
+          /usr/libexec/podman/crun --version | grep -F "1.30.1"
+          sudo podman info --format '{{.Host.OCIRuntime.Path}}' | grep -Fx '/usr/libexec/podman/crun'
           sudo podman run --rm docker.io/library/alpine:3.21 sh -c 'echo PODMAN_CONTAINER_OK' | grep -F PODMAN_CONTAINER_OK
 
   upgrade-debian-smoke:

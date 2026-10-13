@@ -35,14 +35,14 @@ Section: admin
 Priority: optional
 Architecture: $ARCH
 Maintainer: speccycy
-Depends: conmon, crun | runc, init-system-helpers, libc6, libdevmapper1.02.1, libgpgme11t64, libseccomp2, libsqlite3-0, $SUBID_PKG
+Depends: conmon, init-system-helpers, libc6, libcap2, libjson-c5, libprotobuf-c1, libsystemd0, libdevmapper1.02.1, libgpgme11t64, libseccomp2, libsqlite3-0, $SUBID_PKG
 Recommends: uidmap, passt, slirp4netns, fuse-overlayfs, iptables, nftables
 Conflicts: podman, podman-remote, golang-github-containers-common, golang-github-containers-image, netavark, aardvark-dns
 Replaces: podman, podman-remote, golang-github-containers-common, golang-github-containers-image, netavark, aardvark-dns
 Provides: podman
 Description: Pinned upstream Podman runtime bundle for $PLATFORM
  Podman $PODMAN_VERSION with Netavark $NETAVARK_VERSION and
- Aardvark DNS $AARDVARK_VERSION, built from exact upstream commits.
+ Aardvark DNS $AARDVARK_VERSION and bundled crun $CRUN_VERSION, built from exact upstream commits.
 EOF
 
 dpkg-deb --root-owner-group --build "$PKGROOT" \

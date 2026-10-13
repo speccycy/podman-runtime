@@ -4,7 +4,7 @@ Native Podman runtime packages for **Debian 13 (Trixie)** and **Ubuntu 24.04 LTS
 
 **ภาษาไทย:** [คู่มือติดตั้งแบบทีละขั้น](INSTALL_TH.md) | **English:** [Installation guide](INSTALL.md)
 
-The project builds exact upstream commits on **each target OS separately**. It includes Podman, Quadlet, Netavark and Aardvark DNS while keeping system OCI dependencies (crun, conmon) managed by APT. The upstream Podman source is not modified.
+The project builds exact upstream commits on **each target OS separately**. It includes Podman, Quadlet, Netavark, Aardvark DNS and a Podman-private crun 1.30.1 built for each OS. The host conmon remains APT-managed. This avoids Ubuntu 24.04's older crun failing to understand the OCI spec emitted by Podman 6.1.4, without replacing /usr/bin/crun used by other software. The upstream Podman source is not modified.
 
 ## Easy installation
 
@@ -37,6 +37,7 @@ The `v6.1.4-2` release assets become installable **only after** both native buil
 - Podman 6.1.4 — `464c15fec06f0074c916f9eff87c4806869c2833`
 - Netavark 2.1.0 — `8e91ad1d947ed325327b638f0cb906bea1f7d0ab`
 - Aardvark DNS 2.1.0 — `cd7417681229219059939bdd9f0b3bd9ac9abb08`
+- crun 1.30.1 — `079ff6a7a16d029460af882f9ea44674e6a510b6` (includes recent security fixes)
 - Go 1.26.0 and Rust 1.88.0 are **CI build tools**, not required on production hosts.
 
 Podman's upstream dependencies use the pinned go.mod/go.sum. Note that the upstream gvproxy 0.9.0 CVE fix **does not install gvproxy**: this runtime bundle does not ship that binary.
