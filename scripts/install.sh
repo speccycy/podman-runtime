@@ -132,7 +132,7 @@ if [ "$installed" = "install ok installed $PACKAGE_VERSION" ] && [ "$DRY_RUN" -e
   note "Already installed and verified: $PACKAGE_VERSION"
   exit 0
 fi
-if [ -z "$installed" ] && command -v podman >/dev/null 2>&1; then
+if [[ "$installed" != install\ ok\ installed\ * ]] && command -v podman >/dev/null 2>&1; then
   fail "A non-podman-runtime Podman installation exists. Review migration before replacing it."
 fi
 check_running_podman
