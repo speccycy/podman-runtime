@@ -50,6 +50,13 @@ jobs:
             sh -s -- -y --profile minimal --default-toolchain 1.88.0
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
+      - name: Validate scripts and show installer help
+        shell: bash
+        run: |
+          set -euo pipefail
+          for script in scripts/*.sh; do bash -n "$script"; done
+          bash scripts/install.sh --help >/dev/null
+
       - name: Build exact upstream runtime
         shell: bash
         run: scripts/build.sh
