@@ -1,66 +1,56 @@
-# podman-runtime
+# Podman Runtime 6.1.4
 
-Build pipeline for a pinned upstream Podman runtime on Debian 13.
+Native Podman runtime packages for **Debian 13 (Trixie)** and **Ubuntu 24.04 LTS (Noble)**, x86_64/amd64.
 
-This repository does **not** fork or patch Podman source code. It fetches exact
-upstream commits, verifies that the expected release tags still resolve to those
-commits, builds them on Debian 13, packages the runtime, and publishes CI artifacts.
+**ภาษาไทย:** [คู่มือติดตั้งแบบทีละขั้น](INSTALL_TH.md) | **English:** [Installation guide](INSTALL.md)
 
-## Pinned upstream
+The project builds exact upstream commits on **each target OS separately**. It includes Podman, Quadlet, Netavark, Aardvark DNS and a Podman-private crun 1.30.1 built for each OS. The host conmon remains APT-managed. This avoids Ubuntu 24.04's older crun failing to understand the OCI spec emitted by Podman 6.1.4, without replacing /usr/bin/crun used by other software. The upstream Podman source is not modified.
+
+## Easy installation
+
+On a fresh Debian 13 or Ubuntu 24.04 server:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl python3
+curl -fsSL https://raw.githubusercontent.com/speccycy/podman-runtime/main/scripts/install.sh -o podman-install.sh
+sudo bash podman-install.sh
+```
+
+The installer automatically detects the OS and downloads the **matching native package** from a fixed versioned GitHub Release. It cross-checks its SHA-256 with GitHub asset metadata and SHA256SUMS, simulates the APT transaction, and verifies the runtime and protected services. Do not pipe an unreviewed download directly into `sudo bash`.
+
+To preview without installing: `sudo bash podman-install.sh --dry-run`.
+
+**Important:** Stop running Podman workloads and plan a maintenance window for an upgrade. The installer refuses active rootful containers and unknown source-built or distro Podman installations; see the migration section in the guide. Rootless user workloads require separate administrator review.
+
+## Supported platforms and assets
+
+| OS | Architecture | Release asset |
+| --- | --- | --- |
+| Debian 13 | amd64 | `podman-runtime_6.1.4-2_debian13_amd64.deb` |
+| Ubuntu 24.04 LTS | amd64 | `podman-runtime_6.1.4-2_ubuntu24.04_amd64.deb` |
+
+The `v6.1.4-2` release assets become installable **only after** both native builds and CI tests pass and GitHub publishes the release. Until then, use the last verified platform-specific release for Debian; Ubuntu is not approved.
+
+### Pinned upstream versions
 
 - Podman 6.1.4 — `464c15fec06f0074c916f9eff87c4806869c2833`
 - Netavark 2.1.0 — `8e91ad1d947ed325327b638f0cb906bea1f7d0ab`
 - Aardvark DNS 2.1.0 — `cd7417681229219059939bdd9f0b3bd9ac9abb08`
-- Go 1.26.0
-- Rust 1.88.0
+- crun 1.30.1 — `079ff6a7a16d029460af882f9ea44674e6a510b6` (includes recent security fixes)
+- Go 1.26.0 and Rust 1.88.0 are **CI build tools**, not required on production hosts.
 
-`containers/common` and `containers/image` are Go module dependencies of
-Podman and are resolved from Podman's pinned `go.mod` / `go.sum`; they are
-not separately installed runtime binaries.
+Podman's upstream dependencies use the pinned go.mod/go.sum. Note that the upstream gvproxy 0.9.0 CVE fix **does not install gvproxy**: this runtime bundle does not ship that binary.
 
-Podman 6.1.4 includes a WSL 3 fix and updated Buildah 1.45.2 / Storage 1.64.2
-Go dependencies. Upstream also updated gvproxy to 0.9.0 to address
-CVE-2026-107935; this Debian server bundle does not package gvproxy.
-Podman 6.1.3 previously addressed CVE-2026-94603 and removed checkpoint
-image support from `podman run`.
+## CI and release
 
-The production installer is pinned to the last verified release (6.1.3-1).
-After 6.1.4-1 is built, tested, and published, update the installer to its
-verified package and SHA256SUMS digests in a separate change.
+`.github/workflows/build-runtime.yml` runs:
+1. Native Debian 13 and Ubuntu 24.04 source builds, package validation and SHA-256 generation.
+2. Clean install smoke tests on each OS.
+3. Ubuntu host container-run smoke test and upgrade from Ubuntu distro Podman.
+4. Debian upgrade tests from previous release packages.
+5. Release publishing **only after all jobs succeed on main/tag pushes**.
 
-## Outputs
+GitHub Release includes both .deb packages, both tarballs and a combined `SHA256SUMS`. Builds use versioned `versions.env` pins. The production server does not need a compiler.
 
-GitHub Actions produces:
-
-- `podman-runtime_<version>_<arch>.deb`
-- `podman-runtime_<version>_<arch>.tar.gz`
-- `SHA256SUMS`
-
-The bundle contains Podman, rootlessport, Quadlet, Netavark, and Aardvark DNS.
-System runtime dependencies such as conmon and crun remain Debian-managed.
-
-## Installation
-
-Production installs must use a versioned GitHub Release, not a source build on
-the production server. See [INSTALL.md](INSTALL.md).
-
-## Local build
-
-Run on Debian 13 with the dependencies mirrored in
-`.github/workflows/build-debian13.yml`:
-
-```bash
-scripts/build.sh
-scripts/package.sh
-scripts/verify.sh
-```
-
-Artifacts are written to `dist/`.
-
-## Supply-chain rules
-
-1. Never build from a floating upstream branch.
-2. Change both version/tag and exact SHA together.
-3. The build fails if an upstream tag no longer resolves to the pinned SHA.
-4. Do not patch upstream Podman source in this repository.
-5. Review dependency/toolchain changes before changing `versions.env`.
+This repository manages the **Podman runtime**, not the INFH-WEB application release. The INFH-WEB deployment documentation has a separate acceptance gate.
