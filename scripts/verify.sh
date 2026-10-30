@@ -10,6 +10,7 @@ DIST="$ROOT/dist"
 case "$ID:$VERSION_ID" in
   debian:13) PLATFORM=debian13 ;;
   ubuntu:24.04) PLATFORM=ubuntu24.04 ;;
+  ubuntu:26.04) PLATFORM=ubuntu26.04 ;;
   *) echo "Unsupported verification host: $ID $VERSION_ID" >&2; exit 1 ;;
 esac
 
@@ -38,6 +39,7 @@ grep -F "crun_sha=$CRUN_SHA" "$STAGE/BUILD-METADATA"
 grep -F "common_sha=$COMMON_SHA" "$STAGE/BUILD-METADATA"
 grep -F "image_sha=$IMAGE_SHA" "$STAGE/BUILD-METADATA"
 grep -F "package_revision=$PACKAGE_REVISION" "$STAGE/BUILD-METADATA"
+grep -Fx "build_platform=$ID:$VERSION_ID" "$STAGE/BUILD-METADATA"
 
 (
   cd "$DIST"
@@ -50,6 +52,11 @@ dpkg-deb --info "$deb"
 test "$(dpkg-deb -f "$deb" Version)" = "$PODMAN_VERSION-$PACKAGE_REVISION"
 test "$(dpkg-deb -f "$deb" Architecture)" = "amd64"
 depends="$(dpkg-deb -f "$deb" Depends)"
+case "$PLATFORM" in
+  ubuntu26.04) echo "$depends" | grep -F "libgpgme45"; echo "$depends" | grep -F "libsubid5" ;;
+  ubuntu24.04) echo "$depends" | grep -F "libgpgme11t64"; echo "$depends" | grep -F "libsubid4" ;;
+  debian13) echo "$depends" | grep -F "libgpgme11t64"; echo "$depends" | grep -F "libsubid5" ;;
+esac
 case "$depends" in
   *golang-github-containers-common*|*netavark*|*aardvark-dns*)
     echo "unexpected distro container-stack dependency: $depends" >&2

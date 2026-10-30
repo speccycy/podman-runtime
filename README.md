@@ -1,6 +1,6 @@
 # Podman Runtime 6.1.4
 
-Native Podman runtime packages for **Debian 13 (Trixie)** and **Ubuntu 24.04 LTS (Noble)**, x86_64/amd64.
+Native Podman runtime packages for **Debian 13 (Trixie)**, **Ubuntu 24.04 LTS (Noble)** and **Ubuntu 26.04 LTS (Resolute)**, x86_64/amd64.
 
 **ภาษาไทย:** [คู่มือติดตั้งแบบทีละขั้น](INSTALL_TH.md) | **English:** [Installation guide](INSTALL.md)
 
@@ -8,7 +8,7 @@ The project builds exact upstream commits on **each target OS separately**. It i
 
 ## Easy installation
 
-On a fresh Debian 13 or Ubuntu 24.04 server:
+On a fresh Debian 13, Ubuntu 24.04 or Ubuntu 26.04 server:
 
 ```bash
 sudo apt-get update
@@ -27,10 +27,11 @@ To preview without installing: `sudo bash podman-install.sh --dry-run`.
 
 | OS | Architecture | Release asset |
 | --- | --- | --- |
-| Debian 13 | amd64 | `podman-runtime_6.1.4-2_debian13_amd64.deb` |
-| Ubuntu 24.04 LTS | amd64 | `podman-runtime_6.1.4-2_ubuntu24.04_amd64.deb` |
+| Debian 13 | amd64 | `podman-runtime_6.1.4-3_debian13_amd64.deb` |
+| Ubuntu 24.04 LTS | amd64 | `podman-runtime_6.1.4-3_ubuntu24.04_amd64.deb` |
+| Ubuntu 26.04 LTS | amd64 | `podman-runtime_6.1.4-3_ubuntu26.04_amd64.deb` |
 
-The `v6.1.4-2` release assets become installable **only after** both native builds and CI tests pass and GitHub publishes the release. Until then, use the last verified platform-specific release for Debian; Ubuntu is not approved.
+The proposed `v6.1.4-3` packages are **not released or approved** until all three native builds, tests, and actual Ubuntu 26.04 rootful host acceptance succeed and the Owner authorizes publication. Never install an asset from a different OS.
 
 ### Pinned upstream versions
 
@@ -45,12 +46,12 @@ Podman's upstream dependencies use the pinned go.mod/go.sum. Note that the upstr
 ## CI and release
 
 `.github/workflows/build-runtime.yml` runs:
-1. Native Debian 13 and Ubuntu 24.04 source builds, package validation and SHA-256 generation.
+1. Native Debian 13, Ubuntu 24.04 and Ubuntu 26.04 source builds, package validation and SHA-256 generation.
 2. Clean install smoke tests on each OS.
-3. Ubuntu host container-run smoke test and upgrade from Ubuntu distro Podman.
+3. Ubuntu 24.04 and Ubuntu 26.04 rootful host container-run smoke tests; Ubuntu 24.04 distro Podman upgrade test.
 4. Debian upgrade tests from previous release packages.
 5. Release publishing **only after all jobs succeed on main/tag pushes**.
 
-GitHub Release includes both .deb packages, both tarballs and a combined `SHA256SUMS`. Builds use versioned `versions.env` pins. The production server does not need a compiler.
+GitHub Release includes three .deb packages, three tarballs and a combined `SHA256SUMS`. Builds use versioned `versions.env` pins. The production server does not need a compiler.
 
 This repository manages the **Podman runtime**, not the INFH-WEB application release. The INFH-WEB deployment documentation has a separate acceptance gate.

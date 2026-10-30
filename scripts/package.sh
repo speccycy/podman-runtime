@@ -13,8 +13,9 @@ PKGROOT="$ROOT/work/pkg"
 . /etc/os-release
 PKG_VERSION="$PODMAN_VERSION-$PACKAGE_REVISION"
 case "$ID:$VERSION_ID" in
-  debian:13) PLATFORM=debian13; SUBID_PKG=libsubid5 ;;
-  ubuntu:24.04) PLATFORM=ubuntu24.04; SUBID_PKG=libsubid4 ;;
+  debian:13) PLATFORM=debian13; SUBID_PKG=libsubid5; GPGME_PKG=libgpgme11t64 ;;
+  ubuntu:24.04) PLATFORM=ubuntu24.04; SUBID_PKG=libsubid4; GPGME_PKG=libgpgme11t64 ;;
+  ubuntu:26.04) PLATFORM=ubuntu26.04; SUBID_PKG=libsubid5; GPGME_PKG=libgpgme45 ;;
   *) echo "Unsupported packaging host: $ID $VERSION_ID" >&2; exit 1 ;;
 esac
 [ "$ARCH" = amd64 ] || { echo "Only amd64 supported" >&2; exit 1; }
@@ -35,7 +36,7 @@ Section: admin
 Priority: optional
 Architecture: $ARCH
 Maintainer: speccycy
-Depends: conmon, init-system-helpers, libc6, libcap2, libjson-c5, libprotobuf-c1, libsystemd0, libdevmapper1.02.1, libgpgme11t64, libseccomp2, libsqlite3-0, $SUBID_PKG
+Depends: conmon, init-system-helpers, libc6, libcap2, libjson-c5, libprotobuf-c1, libsystemd0, libdevmapper1.02.1, ${GPGME_PKG}, libseccomp2, libsqlite3-0, $SUBID_PKG
 Recommends: uidmap, passt, slirp4netns, fuse-overlayfs, iptables, nftables
 Conflicts: podman, podman-remote, golang-github-containers-common, golang-github-containers-image, netavark, aardvark-dns
 Replaces: podman, podman-remote, golang-github-containers-common, golang-github-containers-image, netavark, aardvark-dns
