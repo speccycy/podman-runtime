@@ -2,7 +2,7 @@
 
 **ระบบที่รองรับ:** Debian 13, Ubuntu 24.04 LTS และ Ubuntu 26.04 LTS แบบ 64-bit (amd64/x86_64)
 
-**Ubuntu 26.04:** ตั้งค่า Netavark ให้ใช้ `nftables` แทน `iptables` ที่ Netavark 2.x ไม่รองรับแล้ว หากเคยกำหนด `firewall_driver` ไว้ใน `/etc/containers/` ต้องตรวจสอบก่อนเปลี่ยน โดยหยุด workload และวางแผน maintenance window
+**Ubuntu 26.04:** แพ็กเกจติดตั้ง `nftables` เป็น dependency และสร้างไฟล์ตั้งค่าใน `/etc/containers/containers.conf.d/` เพื่อให้ Netavark ใช้ `nftables` แทน `iptables` โดยไม่แก้ไฟล์ `/etc/containers/containers.conf` เดิม หากมีการตั้งค่าของผู้ดูแลหรือผู้ใช้ที่มีลำดับความสำคัญสูงกว่าต้องตรวจสอบ และวางแผน maintenance window ก่อนเปลี่ยนค่าเมื่อมี workload ทำงานอยู่
 
 **เวอร์ชันเป้าหมาย:** Podman 6.1.4 / แพ็กเกจ 6.1.4-3 / Netavark และ Aardvark DNS 2.1.0 / crun 1.30.1 (อยู่ในแพ็กเกจ)
 
