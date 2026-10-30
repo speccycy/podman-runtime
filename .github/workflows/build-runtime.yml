@@ -125,6 +125,7 @@ jobs:
           dpkg-query -W ${{ matrix.subid }}
           if [ "${{ matrix.platform }}" = ubuntu26.04 ]; then
             dpkg-query -W libgpgme45
+            grep -Fx 'firewall_driver = "nftables"' /usr/share/containers/containers.conf.d/98-infh-netavark-nftables.conf
           else
             dpkg-query -W libgpgme11t64
           fi
@@ -200,6 +201,9 @@ jobs:
           done
           sudo podman info --format '{{.Host.CgroupsVersion}} {{.Host.NetworkBackend}}' | grep -Fx 'v2 netavark'
           sudo podman info --format '{{.Host.OCIRuntime.Path}}' | grep -Fx '/usr/libexec/podman/crun'
+          grep -Fx 'firewall_driver = "nftables"' /usr/share/containers/containers.conf.d/98-infh-netavark-nftables.conf
+          # Show conflicting host configuration if the runner retained distro settings.
+          sudo grep -R -h -E '^[[:space:]]*firewall_driver[[:space:]]*=' /etc/containers /usr/share/containers/containers.conf.d 2>/dev/null || true
           sudo podman run --rm docker.io/library/alpine:3.21 sh -c 'echo PODMAN_CONTAINER_OK' | grep -F PODMAN_CONTAINER_OK
 
   upgrade-debian-smoke:

@@ -23,6 +23,8 @@ Preview only: `sudo bash podman-install.sh --dry-run`.
 
 Podman uses `/usr/libexec/podman/crun` bundled with the runtime; `/usr/bin/crun` from the OS is unchanged. Custom `/etc/containers` overrides can change runtime selection and are detected by the installer.
 
+Ubuntu 26.04 packages select the supported Netavark `nftables` firewall driver under `/usr/share/containers/containers.conf.d/`. Review any administrator-managed `/etc/containers/` override that explicitly requests `iptables`, as Netavark 2.x no longer supports it. Do not change a firewall driver on a host with running containers without planning a maintenance window.
+
 The runtime is daemonless by default. The script does **not** automatically enable `podman.socket` or `podman.service`.
 
 ## Troubleshooting

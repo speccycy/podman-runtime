@@ -4,7 +4,7 @@ Native Podman runtime packages for **Debian 13 (Trixie)**, **Ubuntu 24.04 LTS (N
 
 **ภาษาไทย:** [คู่มือติดตั้งแบบทีละขั้น](INSTALL_TH.md) | **English:** [Installation guide](INSTALL.md)
 
-The project builds exact upstream commits on **each target OS separately**. It includes Podman, Quadlet, Netavark, Aardvark DNS and a Podman-private crun 1.30.1 built for each OS. The host conmon remains APT-managed. This avoids Ubuntu 24.04's older crun failing to understand the OCI spec emitted by Podman 6.1.4, without replacing /usr/bin/crun used by other software. The upstream Podman source is not modified.
+The project builds exact upstream commits on **each target OS separately**. On Ubuntu 26.04, it pins Netavark to the supported `nftables` firewall driver (instead of the removed `iptables` driver). It includes Podman, Quadlet, Netavark, Aardvark DNS and a Podman-private crun 1.30.1 built for each OS. The host conmon remains APT-managed. This avoids Ubuntu 24.04's older crun failing to understand the OCI spec emitted by Podman 6.1.4, without replacing /usr/bin/crun used by other software. The upstream Podman source is not modified.
 
 ## Easy installation
 
