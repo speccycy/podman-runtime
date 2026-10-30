@@ -204,9 +204,24 @@ jobs:
           sudo podman info --format '{{.Host.OCIRuntime.Path}}' | grep -Fx '/usr/libexec/podman/crun'
           dpkg-query -W nftables
           grep -Fx 'firewall_driver = "nftables"' /etc/containers/containers.conf.d/98-infh-netavark-nftables.conf
-          # Show conflicting host configuration if the runner retained distro settings.
-          sudo grep -R -h -E '^[[:space:]]*firewall_driver[[:space:]]*=' /etc/containers /usr/share/containers/containers.conf.d 2>/dev/null || true
-          sudo podman run --rm docker.io/library/alpine:3.21 sh -c 'echo PODMAN_CONTAINER_OK' | grep -F PODMAN_CONTAINER_OK
+          # Diagnostic: report the source of each firewall setting, not just its value.
+          echo '==> Effective firewall input files (read-only)'
+          sudo find /usr/share/containers /etc/containers /root/.config/containers \
+            -type f \( -name containers.conf -o -path '*/containers.conf.d/*.conf' \) \
+            -print0 2>/dev/null | sort -z | xargs -0 -r grep -Hn -E \
+            '^[[:space:]]*firewall_driver[[:space:]]*=' || true
+          echo '==> Any explicit containers.conf environment override'
+          sudo env | grep -E '^CONTAINERS_CONF(_OVERRIDE)?=' || true
+          echo '==> Podman debug configuration loading'
+          sudo podman --log-level=debug info --format '{{.Host.NetworkBackend}}' 2>&1 | \
+            grep -Ei 'config|firewall|network|override' || true
+          if ! sudo podman run --rm docker.io/library/alpine:3.21 sh -c 'echo PODMAN_CONTAINER_OK' | grep -F PODMAN_CONTAINER_OK; then
+            echo '==> Diagnostic only: explicit last-loaded config override (does NOT count as acceptance)'
+            sudo env CONTAINERS_CONF_OVERRIDE=/etc/containers/containers.conf.d/98-infh-netavark-nftables.conf \
+              podman run --rm docker.io/library/alpine:3.21 true || true
+            echo 'Default rootful Podman runtime acceptance failed'
+            exit 1
+          fi
 
   upgrade-debian-smoke:
     needs: build
