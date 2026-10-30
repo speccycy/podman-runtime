@@ -126,7 +126,7 @@ jobs:
           if [ "${{ matrix.platform }}" = ubuntu26.04 ]; then
             dpkg-query -W libgpgme45
             dpkg-query -W nftables
-            grep -Fx 'firewall_driver = "nftables"' /etc/containers/containers.conf.d/98-infh-netavark-nftables.conf
+            grep -Fx 'firewall_driver = "nftables"' /usr/share/containers/containers.conf.d/zz-infh-netavark-nftables.conf
           else
             dpkg-query -W libgpgme11t64
           fi
@@ -203,7 +203,7 @@ jobs:
           sudo podman info --format '{{.Host.CgroupsVersion}} {{.Host.NetworkBackend}}' | grep -Fx 'v2 netavark'
           sudo podman info --format '{{.Host.OCIRuntime.Path}}' | grep -Fx '/usr/libexec/podman/crun'
           dpkg-query -W nftables
-          grep -Fx 'firewall_driver = "nftables"' /etc/containers/containers.conf.d/98-infh-netavark-nftables.conf
+          grep -Fx 'firewall_driver = "nftables"' /usr/share/containers/containers.conf.d/zz-infh-netavark-nftables.conf
           # Diagnostic: report the source of each firewall setting, not just its value.
           echo '==> Effective firewall input files (read-only)'
           sudo find /usr/share/containers /etc/containers /root/.config/containers \
@@ -212,16 +212,8 @@ jobs:
             '^[[:space:]]*firewall_driver[[:space:]]*=' || true
           echo '==> Any explicit containers.conf environment override'
           sudo env | grep -E '^CONTAINERS_CONF(_OVERRIDE)?=' || true
-          echo '==> Podman debug configuration loading'
-          sudo podman --log-level=debug info --format '{{.Host.NetworkBackend}}' 2>&1 | \
-            grep -Ei 'config|firewall|network|override' || true
-          if ! sudo podman run --rm docker.io/library/alpine:3.21 sh -c 'echo PODMAN_CONTAINER_OK' | grep -F PODMAN_CONTAINER_OK; then
-            echo '==> Diagnostic only: explicit last-loaded config override (does NOT count as acceptance)'
-            sudo env CONTAINERS_CONF_OVERRIDE=/etc/containers/containers.conf.d/98-infh-netavark-nftables.conf \
-              podman run --rm docker.io/library/alpine:3.21 true || true
-            echo 'Default rootful Podman runtime acceptance failed'
-            exit 1
-          fi
+          # Run with normal Podman configuration: do not bypass firewall rules.
+          sudo podman run --rm docker.io/library/alpine:3.21 sh -c 'echo PODMAN_CONTAINER_OK' | grep -F PODMAN_CONTAINER_OK
 
   upgrade-debian-smoke:
     needs: build

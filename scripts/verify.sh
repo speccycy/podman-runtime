@@ -22,12 +22,12 @@ test -x "$STAGE/usr/libexec/podman/aardvark-dns"
 test -x "$STAGE/usr/libexec/podman/crun"
 test -f "$STAGE/usr/share/containers/containers.conf.d/99-infh-pinned-crun.conf"
 if [ "$PLATFORM" = ubuntu26.04 ]; then
-  nft_conf="$STAGE/etc/containers/containers.conf.d/98-infh-netavark-nftables.conf"
+  nft_conf="$STAGE/usr/share/containers/containers.conf.d/zz-infh-netavark-nftables.conf"
   test -f "$nft_conf"
   grep -Fx '[network]' "$nft_conf"
   grep -Fx 'firewall_driver = "nftables"' "$nft_conf"
 else
-  test ! -e "$STAGE/etc/containers/containers.conf.d/98-infh-netavark-nftables.conf"
+  test ! -e "$STAGE/usr/share/containers/containers.conf.d/zz-infh-netavark-nftables.conf"
 fi
 test -f "$STAGE/usr/share/containers/containers.conf"
 test -f "$STAGE/usr/share/containers/seccomp.json"
@@ -77,7 +77,7 @@ dpkg-deb --contents "$deb" | grep -E '/usr/libexec/podman/aardvark-dns$'
 dpkg-deb --contents "$deb" | grep -E '/usr/libexec/podman/crun$'
 dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/containers.conf.d/99-infh-pinned-crun.conf$'
 if [ "$PLATFORM" = ubuntu26.04 ]; then
-  dpkg-deb --contents "$deb" | grep -E '/etc/containers/containers.conf.d/98-infh-netavark-nftables.conf$'
+  dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/containers.conf.d/zz-infh-netavark-nftables.conf$'
 fi
 dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/containers.conf$'
 dpkg-deb --contents "$deb" | grep -E '/usr/share/containers/seccomp.json$'
