@@ -1,4 +1,4 @@
-name: Build Podman runtime (Debian 13 + Ubuntu 24.04)
+name: Build Podman runtime (Debian 13 + Ubuntu 24.04 + Ubuntu 26.04)
 
 on:
   workflow_dispatch:
@@ -21,6 +21,8 @@ jobs:
             image: debian:13
           - platform: ubuntu24.04
             image: ubuntu:24.04
+          - platform: ubuntu26.04
+            image: ubuntu:26.04
     container:
       image: ${{ matrix.image }}
 
@@ -94,6 +96,9 @@ jobs:
           - platform: ubuntu24.04
             image: ubuntu:24.04
             subid: libsubid4
+          - platform: ubuntu26.04
+            image: ubuntu:26.04
+            subid: libsubid5
     container:
       image: ${{ matrix.image }}
 
@@ -116,14 +121,24 @@ jobs:
           cd dist
           sha256sum -c "SHA256SUMS.${{ matrix.platform }}"
           apt-get install -y ./podman-runtime_*_${{ matrix.platform }}_amd64.deb
-          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-2"
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-3"
           dpkg-query -W ${{ matrix.subid }}
+          if [ "${{ matrix.platform }}" = ubuntu26.04 ]; then
+            dpkg-query -W libgpgme45
+            dpkg-query -W nftables
+            grep -Fx 'firewall_driver = "nftables"' /usr/share/containers/containers.conf.d/zz-infh-netavark-nftables.conf
+          else
+            dpkg-query -W libgpgme11t64
+          fi
           podman --version | grep -F "podman version 6.1.4"
           /usr/libexec/podman/netavark --version | grep -F "2.1.0"
           /usr/libexec/podman/aardvark-dns --version | grep -F "2.1.0"
           /usr/libexec/podman/crun --version | grep -F "1.30.1"
           ! ldd /usr/bin/podman | grep -F "not found"
           ! ldd /usr/libexec/podman/crun | grep -F "not found"
+          for binary in /usr/libexec/podman/netavark /usr/libexec/podman/aardvark-dns; do
+            ! ldd "$binary" 2>&1 | grep -F "not found"
+          done
           test -f /usr/share/containers/containers.conf.d/99-infh-pinned-crun.conf
           test -f /usr/share/containers/containers.conf
           test -f /usr/share/containers/seccomp.json
@@ -156,6 +171,48 @@ jobs:
           sudo podman info --format '{{.Host.CgroupsVersion}} {{.Host.NetworkBackend}}' | grep -F 'v2 netavark'
           /usr/libexec/podman/crun --version | grep -F "1.30.1"
           sudo podman info --format '{{.Host.OCIRuntime.Path}}' | grep -Fx '/usr/libexec/podman/crun'
+          sudo podman run --rm docker.io/library/alpine:3.21 sh -c 'echo PODMAN_CONTAINER_OK' | grep -F PODMAN_CONTAINER_OK
+
+  ubuntu26-host-smoke:
+    needs: build
+    runs-on: ubuntu-26.04
+    steps:
+      - name: Download native Ubuntu 26.04 package
+        uses: actions/download-artifact@v4
+        with:
+          name: podman-runtime-ubuntu26.04-${{ github.run_id }}
+          path: dist
+
+      - name: Install and accept real rootful runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd dist && sha256sum -c SHA256SUMS.ubuntu26.04)
+          sudo apt-get update
+          sudo apt-get install -y ./dist/podman-runtime_*_ubuntu26.04_amd64.deb
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-3"
+          podman --version | grep -F "podman version 6.1.4"
+          /usr/libexec/podman/netavark --version | grep -F '2.1.0'
+          /usr/libexec/podman/aardvark-dns --version | grep -F '2.1.0'
+          /usr/libexec/podman/crun --version | grep -F '1.30.1'
+          ! ldd /usr/bin/podman | grep -F 'not found'
+          ! ldd /usr/libexec/podman/crun | grep -F 'not found'
+          for binary in /usr/libexec/podman/netavark /usr/libexec/podman/aardvark-dns; do
+            ! ldd "$binary" 2>&1 | grep -F 'not found'
+          done
+          sudo podman info --format '{{.Host.CgroupsVersion}} {{.Host.NetworkBackend}}' | grep -Fx 'v2 netavark'
+          sudo podman info --format '{{.Host.OCIRuntime.Path}}' | grep -Fx '/usr/libexec/podman/crun'
+          dpkg-query -W nftables
+          grep -Fx 'firewall_driver = "nftables"' /usr/share/containers/containers.conf.d/zz-infh-netavark-nftables.conf
+          # Diagnostic: report the source of each firewall setting, not just its value.
+          echo '==> Effective firewall input files (read-only)'
+          sudo find /usr/share/containers /etc/containers /root/.config/containers \
+            -type f \( -name containers.conf -o -path '*/containers.conf.d/*.conf' \) \
+            -print0 2>/dev/null | sort -z | xargs -0 -r grep -Hn -E \
+            '^[[:space:]]*firewall_driver[[:space:]]*=' || true
+          echo '==> Any explicit containers.conf environment override'
+          sudo env | grep -E '^CONTAINERS_CONF(_OVERRIDE)?=' || true
+          # Run with normal Podman configuration: do not bypass firewall rules.
           sudo podman run --rm docker.io/library/alpine:3.21 sh -c 'echo PODMAN_CONTAINER_OK' | grep -F PODMAN_CONTAINER_OK
 
   upgrade-debian-smoke:
@@ -200,7 +257,7 @@ jobs:
         run: |
           set -euo pipefail
           apt-get install -y ./dist/podman-runtime_*_debian13_amd64.deb
-          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-2"
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-3"
           podman --version | grep -F "podman version 6.1.4"
 
   ubuntu-upgrade-smoke:
@@ -226,12 +283,12 @@ jobs:
         run: |
           set -euo pipefail
           apt-get install -y ./dist/podman-runtime_*_ubuntu24.04_amd64.deb
-          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-2"
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-3"
           podman --version | grep -F "podman version 6.1.4"
 
   release:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    needs: [build, package-smoke, ubuntu-host-smoke, upgrade-debian-smoke, ubuntu-upgrade-smoke]
+    needs: [build, package-smoke, ubuntu-host-smoke, ubuntu26-host-smoke, upgrade-debian-smoke, ubuntu-upgrade-smoke]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -240,7 +297,7 @@ jobs:
       - name: Checkout pinned versions
         uses: actions/checkout@v4
 
-      - name: Download both platform bundles
+      - name: Download all platform bundles
         uses: actions/download-artifact@v4
         with:
           pattern: podman-runtime-*-${{ github.run_id }}
@@ -252,9 +309,9 @@ jobs:
         run: |
           set -euo pipefail
           cd dist
-          test "$(find . -maxdepth 1 -name '*.deb' | wc -l)" -eq 2
-          test "$(find . -maxdepth 1 -name '*.tar.gz' | wc -l)" -eq 2
-          cat SHA256SUMS.debian13 SHA256SUMS.ubuntu24.04 > SHA256SUMS
+          test "$(find . -maxdepth 1 -name '*.deb' | wc -l)" -eq 3
+          test "$(find . -maxdepth 1 -name '*.tar.gz' | wc -l)" -eq 3
+          cat SHA256SUMS.debian13 SHA256SUMS.ubuntu24.04 SHA256SUMS.ubuntu26.04 > SHA256SUMS
           sha256sum -c SHA256SUMS
 
       - name: Publish versioned release
@@ -275,7 +332,7 @@ jobs:
             release_source=(--verify-tag)
           fi
           cat > release-notes.md <<EOF
-          Native runtime packages for Debian 13 and Ubuntu 24.04 (amd64).
+          Native runtime packages for Debian 13, Ubuntu 24.04 and Ubuntu 26.04 (amd64).
           Podman $PODMAN_VERSION pinned to $PODMAN_SHA
           Netavark $NETAVARK_VERSION pinned to $NETAVARK_SHA
           Aardvark DNS $AARDVARK_VERSION pinned to $AARDVARK_SHA

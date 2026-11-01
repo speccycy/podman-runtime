@@ -1,10 +1,10 @@
-# Installation — Debian 13 / Ubuntu 24.04 (amd64)
+# Installation — Debian 13 / Ubuntu 24.04 / Ubuntu 26.04 (amd64)
 
 For a step-by-step Thai guide, see [INSTALL_TH.md](INSTALL_TH.md).
 
 ## Requirements
 
-- Debian 13 (Trixie) **or** Ubuntu 24.04 LTS (Noble), 64-bit Intel/AMD.
+- Debian 13 (Trixie), Ubuntu 24.04 LTS (Noble) **or** Ubuntu 26.04 LTS (Resolute), 64-bit Intel/AMD.
 - `sudo`, internet access to GitHub and your distro's APT repositories.
 - cgroup v2, Netavark backend.
 - For upgrades: backups and a maintenance window. Stop running Podman containers and review **rootless** containers and Quadlet units separately.
@@ -23,6 +23,8 @@ Preview only: `sudo bash podman-install.sh --dry-run`.
 
 Podman uses `/usr/libexec/podman/crun` bundled with the runtime; `/usr/bin/crun` from the OS is unchanged. Custom `/etc/containers` overrides can change runtime selection and are detected by the installer.
 
+Ubuntu 26.04 packages depend on `nftables` and use a vendor-owned `zz-infh-netavark-nftables.conf` drop-in under `/usr/share/containers/containers.conf.d/` to select the supported Netavark firewall driver. Its name sorts after the legacy `99-fix-firewall.conf` seen on Ubuntu 26.04 hosted runners, without editing existing `/etc/containers` files. Administrators may override it with a same-name file under `/etc/containers/containers.conf.d/`; review overrides that request unsupported `iptables`. Do not change a firewall driver on a host with running containers without planning a maintenance window.
+
 The runtime is daemonless by default. The script does **not** automatically enable `podman.socket` or `podman.service`.
 
 ## Troubleshooting
@@ -37,9 +39,12 @@ The runtime is daemonless by default. The script does **not** automatically enab
 
 ## Exact release
 
-- Intended tag: `v6.1.4-2` (must be published after successful CI).
-- Debian asset: `podman-runtime_6.1.4-2_debian13_amd64.deb`
-- Ubuntu asset: `podman-runtime_6.1.4-2_ubuntu24.04_amd64.deb`
+- Intended tag: `v6.1.4-3` (must be published after successful CI).
+- Debian asset: `podman-runtime_6.1.4-3_debian13_amd64.deb`
+- Ubuntu 24.04 asset: `podman-runtime_6.1.4-3_ubuntu24.04_amd64.deb`
+- Ubuntu 26.04 asset: `podman-runtime_6.1.4-3_ubuntu26.04_amd64.deb`
 - Repository: https://github.com/speccycy/podman-runtime/releases
+
+**Release pending:** Do not use these new asset names until Owner approval, successful CI and publication.
 
 The installer uses GitHub's per-asset SHA-256 digest as a pinned-release integrity check; `SHA256SUMS` alone is not treated as an independent trust anchor. Existing production workloads are not upgraded automatically by merging the repository.

@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Universal, pinned release installer. Supported: Debian 13 and Ubuntu 24.04 amd64.
+# Universal, pinned release installer. Supported: Debian 13, Ubuntu 24.04 and Ubuntu 26.04 amd64.
 set -euo pipefail
 umask 022
 
 REPO="speccycy/podman-runtime"
-RELEASE_TAG="v6.1.4-2"
+RELEASE_TAG="v6.1.4-3"
 PODMAN_VERSION="6.1.4"
-PACKAGE_VERSION="6.1.4-2"
+PACKAGE_VERSION="6.1.4-3"
 DRY_RUN=0
 
 usage() {
   cat <<'EOF'
-Podman runtime installer (Debian 13 / Ubuntu 24.04, amd64)
+Podman runtime installer (Debian 13 / Ubuntu 24.04 / Ubuntu 26.04, amd64)
 
 Usage:
   sudo bash install.sh
@@ -40,7 +40,8 @@ esac
 case "$ID:$VERSION_ID" in
   debian:13) PLATFORM="debian13" ;;
   ubuntu:24.04) PLATFORM="ubuntu24.04" ;;
-  *) fail "Unsupported OS: $ID $VERSION_ID. Supported: Debian 13, Ubuntu 24.04." ;;
+  ubuntu:26.04) PLATFORM="ubuntu26.04" ;;
+  *) fail "Unsupported OS: $ID $VERSION_ID. Supported: Debian 13, Ubuntu 24.04, Ubuntu 26.04." ;;
 esac
 [ "$(dpkg --print-architecture)" = amd64 ] || fail "Only amd64 (x86_64) is supported"
 

@@ -1,10 +1,12 @@
 # คู่มือติดตั้ง Podman Runtime สำหรับผู้ใช้ทั่วไป
 
-**ระบบที่รองรับ:** Debian 13 และ Ubuntu 24.04 LTS แบบ 64-bit (amd64/x86_64)
+**ระบบที่รองรับ:** Debian 13, Ubuntu 24.04 LTS และ Ubuntu 26.04 LTS แบบ 64-bit (amd64/x86_64)
 
-**เวอร์ชันเป้าหมาย:** Podman 6.1.4 / แพ็กเกจ 6.1.4-2 / Netavark และ Aardvark DNS 2.1.0 / crun 1.30.1 (อยู่ในแพ็กเกจ)
+**Ubuntu 26.04:** แพ็กเกจติดตั้ง `nftables` เป็น dependency และสร้างไฟล์ vendor `zz-infh-netavark-nftables.conf` ใน `/usr/share/containers/containers.conf.d/` ซึ่งเรียงลำดับหลัง `99-fix-firewall.conf` ของ Ubuntu 26.04 runner เพื่อให้ Netavark ใช้ `nftables` แทน `iptables` โดยไม่แก้ไฟล์ผู้ดูแลใน `/etc/containers/` ผู้ดูแลยังสามารถใช้ไฟล์ชื่อเดียวกันใน `/etc/containers/containers.conf.d/` เพื่อ override ได้ และวางแผน maintenance window ก่อนเปลี่ยนค่าเมื่อมี workload ทำงานอยู่
 
-> **สำคัญ:** แพ็กเกจ 6.1.4-2 สำหรับทั้งสองระบบจะพร้อมใช้เมื่อ GitHub Actions ผ่านและเผยแพร่ Release แล้วเท่านั้น ถ้า Release ยังไม่ออก ตัวติดตั้งจะหยุด ไม่ดาวน์โหลดแพ็กเกจเก่าหรือฝืนติดตั้งข้ามระบบ
+**เวอร์ชันเป้าหมาย:** Podman 6.1.4 / แพ็กเกจ 6.1.4-3 / Netavark และ Aardvark DNS 2.1.0 / crun 1.30.1 (อยู่ในแพ็กเกจ)
+
+> **สำคัญ:** แพ็กเกจ 6.1.4-3 สำหรับทั้งสามระบบจะพร้อมใช้เมื่อ GitHub Actions ผ่านและเผยแพร่ Release แล้วเท่านั้น ถ้า Release ยังไม่ออก ตัวติดตั้งจะหยุด ไม่ดาวน์โหลดแพ็กเกจเก่าหรือฝืนติดตั้งข้ามระบบ
 
 ## ขั้นที่ 1 — ตรวจว่าเครื่องรองรับหรือไม่
 
@@ -15,9 +17,9 @@ cat /etc/os-release
 dpkg --print-architecture
 ```
 
-ต้องเป็น Debian `13` หรือ Ubuntu `24.04` และ architecture `amd64`
+ต้องเป็น Debian `13` หรือ Ubuntu `24.04` / `26.04` และ architecture `amd64`
 
-เครื่องที่ใช้ Debian 12, Ubuntu 22.04/26.04, ARM64 หรือ OS อื่น **ยังไม่รองรับ** อย่านำไฟล์ .deb ข้ามระบบมาใช้
+เครื่องที่ใช้ Debian 12, Ubuntu 22.04, ARM64 หรือ OS อื่น **ยังไม่รองรับ** อย่านำไฟล์ .deb ข้ามระบบมาใช้
 
 ## ขั้นที่ 2 — เตรียมโปรแกรมดาวน์โหลด
 
@@ -74,7 +76,7 @@ sudo podman run --rm docker.io/library/alpine:3.21 echo PODMAN_OK
 
 ```text
 podman version 6.1.4
-podman-runtime 6.1.4-2
+podman-runtime 6.1.4-3
 Cgroup=v2 Network=netavark
 crun version 1.30.1
 /usr/libexec/podman/crun

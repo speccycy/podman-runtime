@@ -121,6 +121,17 @@ runtime = "crun"
 crun = ["/usr/libexec/podman/crun"]
 EOF
 
+# Netavark 2.x no longer accepts the legacy iptables firewall driver.
+# Ubuntu 26.04 can retain that driver from its distro Podman configuration;
+# Vendor drop-in sorts after legacy 99-fix-firewall.conf on Ubuntu 26.04.
+# Keep /etc/containers administrator files untouched (same-name /etc override wins).
+if [ "$(. /etc/os-release; echo "$ID:$VERSION_ID")" = "ubuntu:26.04" ]; then
+  cat > "$STAGE/usr/share/containers/containers.conf.d/zz-infh-netavark-nftables.conf" <<'EOF'
+[network]
+firewall_driver = "nftables"
+EOF
+fi
+
 cat > "$STAGE/BUILD-METADATA" <<EOF
 podman_version=$PODMAN_VERSION
 podman_sha=$PODMAN_SHA
