@@ -43,7 +43,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
-          go-version: "1.26.0"
+          go-version: "1.26.8"
           cache: false
 
       - name: Set up Rust
@@ -121,7 +121,7 @@ jobs:
           cd dist
           sha256sum -c "SHA256SUMS.${{ matrix.platform }}"
           apt-get install -y ./podman-runtime_*_${{ matrix.platform }}_amd64.deb
-          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-3"
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.2.0-1"
           dpkg-query -W ${{ matrix.subid }}
           if [ "${{ matrix.platform }}" = ubuntu26.04 ]; then
             dpkg-query -W libgpgme45
@@ -130,7 +130,7 @@ jobs:
           else
             dpkg-query -W libgpgme11t64
           fi
-          podman --version | grep -F "podman version 6.1.4"
+          podman --version | grep -F "podman version 6.2.0"
           /usr/libexec/podman/netavark --version | grep -F "2.1.0"
           /usr/libexec/podman/aardvark-dns --version | grep -F "2.1.0"
           /usr/libexec/podman/crun --version | grep -F "1.30.1"
@@ -167,7 +167,7 @@ jobs:
           (cd dist && sha256sum -c SHA256SUMS.ubuntu24.04)
           sudo apt-get update
           sudo apt-get install -y ./dist/podman-runtime_*_ubuntu24.04_amd64.deb
-          podman --version | grep -F "podman version 6.1.4"
+          podman --version | grep -F "podman version 6.2.0"
           sudo podman info --format '{{.Host.CgroupsVersion}} {{.Host.NetworkBackend}}' | grep -F 'v2 netavark'
           /usr/libexec/podman/crun --version | grep -F "1.30.1"
           sudo podman info --format '{{.Host.OCIRuntime.Path}}' | grep -Fx '/usr/libexec/podman/crun'
@@ -190,8 +190,8 @@ jobs:
           (cd dist && sha256sum -c SHA256SUMS.ubuntu26.04)
           sudo apt-get update
           sudo apt-get install -y ./dist/podman-runtime_*_ubuntu26.04_amd64.deb
-          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-3"
-          podman --version | grep -F "podman version 6.1.4"
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.2.0-1"
+          podman --version | grep -F "podman version 6.2.0"
           /usr/libexec/podman/netavark --version | grep -F '2.1.0'
           /usr/libexec/podman/aardvark-dns --version | grep -F '2.1.0'
           /usr/libexec/podman/crun --version | grep -F '1.30.1'
@@ -257,8 +257,8 @@ jobs:
         run: |
           set -euo pipefail
           apt-get install -y ./dist/podman-runtime_*_debian13_amd64.deb
-          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-3"
-          podman --version | grep -F "podman version 6.1.4"
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.2.0-1"
+          podman --version | grep -F "podman version 6.2.0"
 
   ubuntu-upgrade-smoke:
     needs: build
@@ -283,8 +283,8 @@ jobs:
         run: |
           set -euo pipefail
           apt-get install -y ./dist/podman-runtime_*_ubuntu24.04_amd64.deb
-          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.1.4-3"
-          podman --version | grep -F "podman version 6.1.4"
+          test "$(dpkg-query -W -f='${Version}' podman-runtime)" = "6.2.0-1"
+          podman --version | grep -F "podman version 6.2.0"
 
   release:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))

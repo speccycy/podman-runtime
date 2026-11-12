@@ -1,10 +1,10 @@
-# Podman Runtime 6.1.4
+# Podman Runtime 6.2.0
 
 Native Podman runtime packages for **Debian 13 (Trixie)**, **Ubuntu 24.04 LTS (Noble)** and **Ubuntu 26.04 LTS (Resolute)**, x86_64/amd64.
 
 **ภาษาไทย:** [คู่มือติดตั้งแบบทีละขั้น](INSTALL_TH.md) | **English:** [Installation guide](INSTALL.md)
 
-The project builds exact upstream commits on **each target OS separately**. On Ubuntu 26.04, it selects Netavark's supported `nftables` firewall driver using a package-owned `zz-infh-netavark-nftables.conf` vendor drop-in under `/usr/share/containers/containers.conf.d/`, sorted after Ubuntu runner's `99-fix-firewall.conf`. Administrators can override the vendor file with a same-name drop-in under `/etc/containers/containers.conf.d/`. It includes Podman, Quadlet, Netavark, Aardvark DNS and a Podman-private crun 1.30.1 built for each OS. The host conmon remains APT-managed. This avoids Ubuntu 24.04's older crun failing to understand the OCI spec emitted by Podman 6.1.4, without replacing /usr/bin/crun used by other software. The upstream Podman source is not modified.
+The project builds exact upstream commits on **each target OS separately**. On Ubuntu 26.04, it selects Netavark's supported `nftables` firewall driver using a package-owned `zz-infh-netavark-nftables.conf` vendor drop-in under `/usr/share/containers/containers.conf.d/`, sorted after Ubuntu runner's `99-fix-firewall.conf`. Administrators can override the vendor file with a same-name drop-in under `/etc/containers/containers.conf.d/`. It includes Podman, Quadlet, Netavark, Aardvark DNS and a Podman-private crun 1.30.1 built for each OS. The host conmon remains APT-managed. This avoids Ubuntu 24.04's older crun failing to understand the OCI spec emitted by Podman 6.2.0, without replacing /usr/bin/crun used by other software. The upstream Podman source is not modified.
 
 ## Easy installation
 
@@ -27,15 +27,15 @@ To preview without installing: `sudo bash podman-install.sh --dry-run`.
 
 | OS | Architecture | Release asset |
 | --- | --- | --- |
-| Debian 13 | amd64 | `podman-runtime_6.1.4-3_debian13_amd64.deb` |
-| Ubuntu 24.04 LTS | amd64 | `podman-runtime_6.1.4-3_ubuntu24.04_amd64.deb` |
-| Ubuntu 26.04 LTS | amd64 | `podman-runtime_6.1.4-3_ubuntu26.04_amd64.deb` |
+| Debian 13 | amd64 | `podman-runtime_6.2.0-1_debian13_amd64.deb` |
+| Ubuntu 24.04 LTS | amd64 | `podman-runtime_6.2.0-1_ubuntu24.04_amd64.deb` |
+| Ubuntu 26.04 LTS | amd64 | `podman-runtime_6.2.0-1_ubuntu26.04_amd64.deb` |
 
-The proposed `v6.1.4-3` packages are **not released or approved** until all three native builds, tests, and actual Ubuntu 26.04 rootful host acceptance succeed and the Owner authorizes publication. Never install an asset from a different OS.
+The proposed `v6.2.0-1` packages are **not released or approved** until all three native builds, tests, and actual Ubuntu 26.04 rootful host acceptance succeed and the Owner authorizes publication. Never install an asset from a different OS.
 
 ### Pinned upstream versions
 
-- Podman 6.1.4 — `464c15fec06f0074c916f9eff87c4806869c2833`
+- Podman 6.2.0 — `055de046937d29450f310fce0fe3071485d8bed9`
 - Netavark 2.1.0 — `8e91ad1d947ed325327b638f0cb906bea1f7d0ab`
 - Aardvark DNS 2.1.0 — `cd7417681229219059939bdd9f0b3bd9ac9abb08`
 - crun 1.30.1 — `079ff6a7a16d029460af882f9ea44674e6a510b6` (includes recent security fixes)
