@@ -35,7 +35,7 @@ The proposed `v6.2.0-1` packages are **not released or approved** until all thre
 
 ### Pinned upstream versions
 
-- Podman 6.2.0 — `464c15fec06f0074c916f9eff87c4806869c2833`
+- Podman 6.2.0 — `055de046937d29450f310fce0fe3071485d8bed9`
 - Netavark 2.1.0 — `8e91ad1d947ed325327b638f0cb906bea1f7d0ab`
 - Aardvark DNS 2.1.0 — `cd7417681229219059939bdd9f0b3bd9ac9abb08`
 - crun 1.30.1 — `079ff6a7a16d029460af882f9ea44674e6a510b6` (includes recent security fixes)
