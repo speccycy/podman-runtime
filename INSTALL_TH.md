@@ -4,9 +4,9 @@
 
 **Ubuntu 26.04:** แพ็กเกจติดตั้ง `nftables` เป็น dependency และสร้างไฟล์ vendor `zz-infh-netavark-nftables.conf` ใน `/usr/share/containers/containers.conf.d/` ซึ่งเรียงลำดับหลัง `99-fix-firewall.conf` ของ Ubuntu 26.04 runner เพื่อให้ Netavark ใช้ `nftables` แทน `iptables` โดยไม่แก้ไฟล์ผู้ดูแลใน `/etc/containers/` ผู้ดูแลยังสามารถใช้ไฟล์ชื่อเดียวกันใน `/etc/containers/containers.conf.d/` เพื่อ override ได้ และวางแผน maintenance window ก่อนเปลี่ยนค่าเมื่อมี workload ทำงานอยู่
 
-**เวอร์ชันเป้าหมาย:** Podman 6.1.4 / แพ็กเกจ 6.1.4-3 / Netavark และ Aardvark DNS 2.1.0 / crun 1.30.1 (อยู่ในแพ็กเกจ)
+**เวอร์ชันเป้าหมาย:** Podman 6.2.0 / แพ็กเกจ 6.2.0-1 / Netavark และ Aardvark DNS 2.1.0 / crun 1.30.1 (อยู่ในแพ็กเกจ)
 
-> **สำคัญ:** แพ็กเกจ 6.1.4-3 สำหรับทั้งสามระบบจะพร้อมใช้เมื่อ GitHub Actions ผ่านและเผยแพร่ Release แล้วเท่านั้น ถ้า Release ยังไม่ออก ตัวติดตั้งจะหยุด ไม่ดาวน์โหลดแพ็กเกจเก่าหรือฝืนติดตั้งข้ามระบบ
+> **สำคัญ:** แพ็กเกจ 6.2.0-1 สำหรับทั้งสามระบบจะพร้อมใช้เมื่อ GitHub Actions ผ่านและเผยแพร่ Release แล้วเท่านั้น ถ้า Release ยังไม่ออก ตัวติดตั้งจะหยุด ไม่ดาวน์โหลดแพ็กเกจเก่าหรือฝืนติดตั้งข้ามระบบ
 
 ## ขั้นที่ 1 — ตรวจว่าเครื่องรองรับหรือไม่
 
@@ -75,8 +75,8 @@ sudo podman run --rm docker.io/library/alpine:3.21 echo PODMAN_OK
 ผลที่คาดหวัง:
 
 ```text
-podman version 6.1.4
-podman-runtime 6.1.4-3
+podman version 6.2.0
+podman-runtime 6.2.0-1
 Cgroup=v2 Network=netavark
 crun version 1.30.1
 /usr/libexec/podman/crun

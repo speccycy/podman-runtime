@@ -17,7 +17,7 @@ curl -fsSL https://raw.githubusercontent.com/speccycy/podman-runtime/main/script
 sudo bash podman-install.sh
 ```
 
-The script prints the OS and selected file; checks that the versioned release exists, that the package hash matches GitHub's independent asset digest and `SHA256SUMS`; displays APT's simulated package changes; refuses unexpected package removals and active Podman workloads; installs and verifies Podman 6.1.4, Netavark 2.1.0, Aardvark DNS 2.1.0 and private crun 1.30.1; and confirms protected Docker/containerd/cloudflared/AMP services were not interrupted.
+The script prints the OS and selected file; checks that the versioned release exists, that the package hash matches GitHub's independent asset digest and `SHA256SUMS`; displays APT's simulated package changes; refuses unexpected package removals and active Podman workloads; installs and verifies Podman 6.2.0, Netavark 2.1.0, Aardvark DNS 2.1.0 and private crun 1.30.1; and confirms protected Docker/containerd/cloudflared/AMP services were not interrupted.
 
 Preview only: `sudo bash podman-install.sh --dry-run`.
 
@@ -39,10 +39,10 @@ The runtime is daemonless by default. The script does **not** automatically enab
 
 ## Exact release
 
-- Intended tag: `v6.1.4-3` (must be published after successful CI).
-- Debian asset: `podman-runtime_6.1.4-3_debian13_amd64.deb`
-- Ubuntu 24.04 asset: `podman-runtime_6.1.4-3_ubuntu24.04_amd64.deb`
-- Ubuntu 26.04 asset: `podman-runtime_6.1.4-3_ubuntu26.04_amd64.deb`
+- Intended tag: `v6.2.0-1` (must be published after successful CI).
+- Debian asset: `podman-runtime_6.2.0-1_debian13_amd64.deb`
+- Ubuntu 24.04 asset: `podman-runtime_6.2.0-1_ubuntu24.04_amd64.deb`
+- Ubuntu 26.04 asset: `podman-runtime_6.2.0-1_ubuntu26.04_amd64.deb`
 - Repository: https://github.com/speccycy/podman-runtime/releases
 
 **Release pending:** Do not use these new asset names until Owner approval, successful CI and publication.

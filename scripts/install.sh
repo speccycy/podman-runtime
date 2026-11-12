@@ -4,9 +4,9 @@ set -euo pipefail
 umask 022
 
 REPO="speccycy/podman-runtime"
-RELEASE_TAG="v6.1.4-3"
-PODMAN_VERSION="6.1.4"
-PACKAGE_VERSION="6.1.4-3"
+RELEASE_TAG="v6.2.0-1"
+PODMAN_VERSION="6.2.0"
+PACKAGE_VERSION="6.2.0-1"
 DRY_RUN=0
 
 usage() {
